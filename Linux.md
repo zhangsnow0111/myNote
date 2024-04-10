@@ -1049,10 +1049,7 @@ Linux 磁盘管理常用三个命令为 **df**、**du** 和 **fdisk**。
   vim -R /etc/passwd                     //以只读模式打开文件
 ```
 
-
-
 vim 具有程序编辑的能力，可以主动的以字体颜色辨别语法的正确性，方便程序设计。
-
 详见：[Linux vi/vim | 菜鸟教程 (runoob.com)](https://www.runoob.com/linux/linux-vim.html)
 
 # 8. Linux apt 命令
@@ -3417,17 +3414,14 @@ ntpdate  0.cn.pool.ntp.org
 # 18.正则表达式
 
 ### 简介
-
 [Regex正则表达式在线测试、生成、解析工具 - GoRegex.cn](https://goregex.cn/regex-intro.html)
 
 **正则表达式**，又称规则表达式。英文：Regurlar Expression。在代码中常简写为regex、regexp或RE，计算机科学的一个概念。正则表达式通常**被用来检索、替换那些符合某个模式(规则)的文本**。
 
 ### 语法
-
 正则表达式是一种文本模式，包括普通字符（例如，a 到 z 之间的字母）和特殊字符（称为“**元字符**”）。模式描述在搜索文本时要匹配的一个或多个字符串。
 
 #### 匹配一个字符串的开头和结尾
-
 **'^' 和 '$'**。他们的作用是分别指出**一个字符串**的开始和结束，也即这个字符串是作为整体匹配的。
 
 - "^The"：表示所有以"The"开始的字符串（"There"，"The cat"等）；
@@ -3515,7 +3509,7 @@ wordsssss ![img1](path1) 文字字![img2](path2)
 
 如果使用贪婪的`!\[.*\]\(.*\)` 会将两个图片整体匹配成一个东西。
 
-# # 快捷键
+### 快捷键
 
 **[Tab] 有『命令补全』与『文件补齐』的功能**
 
@@ -3550,7 +3544,7 @@ wordsssss ![img1](path1) 文字字![img2](path2)
 [Shift]+[Page Down] ## 往后翻页
 ```
 
-# # 可能遇到的问题与解决
+## 可能遇到的问题与解决
 
 - **在ubuntu18安装中文输入法**
 
@@ -3618,13 +3612,13 @@ wordsssss ![img1](path1) 文字字![img2](path2)
     sudo apt-get install open-vm-tools
     
     sudo apt-get install open-vm-tools-desktopwhere
-    
+  ```
 
 - **linux下使用pip报错**
 
 使用的pip版本
 
-``` sh
+```bash
 $ pip --version
 pip 22.3.1 from /home/p4/.local/lib/python3.8/site-packages/pip (python 3.8)
 ```
@@ -3680,7 +3674,7 @@ unset https_proxy
 
 
 
-# # 一些操作系统的知识
+# 一些操作系统的知识
 
 ## CPU、内存、I/O设备速度差异
 
@@ -4220,7 +4214,7 @@ conda命令：
 
 
 
-# # ECN
+# ECN实验
 
 simple_switch_CLI --thrift-port 9091
 
@@ -4274,3 +4268,207 @@ iperf -s -i 1
 
 把参数添加到 `sudo vim /etc/sysctl.conf` 中，然后执行 `sudo sysctl -p` 使参数生效
 
+
+# 19.linux内核日志打印
+## 1.将内核的网络数据包处理日志单独打印到一个文件
+可以使用 Linux 的 rsyslog 功能，这是一个功能丰富的日志处理系统，能够处理内核、系统和应用程序的日志，并能将它们按照自定义的方式输出。
+按照以下步骤进行：
+首先，你需要安装 rsyslog，这可以通过 Linux 的包管理器来完成，例如 apt（Ubuntu, Debian 等）：
+```
+   sudo apt-get install rsyslog
+```
+或者 yum（CentOS, Fedora, RHEL 等）：
+```
+   sudo yum install rsyslog
+```
+安装完rsyslog后，打开 rsyslog.conf 文件：
+```
+   sudo vi /etc/rsyslog.conf
+```
+在文件中添加一个新的规则，将内核的网络数据包日志重定向到一个指定的文件。假设我们要将它们打印到 /var/log/netpacket.log, 那么可以这样添加：
+```
+   kern.=debug -/var/log/netpacket.log
+```
+
+这意味着所有内核级别的 debug 信息（包括网络数据包处理）都会打印到 netpacket.log 文件中。
+最后重启 rsyslog 服务：
+
+```
+   sudo service rsyslog restart
+```
+
+这样，你就可以在 /var/log/netpacket.log 文件中看到所有的网络数据包处理日志了。当然，你应根据实际需要制定合适的日志级别和筛选条件。以上的配置可能会将较多的和网络无关的 debug 信息也打印到文件，需要你自行按需调整。
+
+## 2.在rsyslog中配置将printk打印的信息输出到指定文件
+
+要将printk打印的信息输出到指定文件，首先确保您在系统中已经安装了rsyslog。以下步骤则是如何配置rsyslog：
+打开rsyslog的配置文件。在大多数系统中，这个文件通常位于/etc/rsyslog.conf：
+```shell
+    sudo vi /etc/rsyslog.conf
+```
+
+在文件中添加一个新的规则，将printk打印的信息重定向到指定的文件。例如，如果我们想要将所有内核日志打印到/var/log/kern.log中，我们会这样添加：
+```shell
+    kern.* /var/log/kern.log
+```
+
+上面这一行的含义是，将所有核心（kern）日志重定向到 /var/log/kern.log 中。
+保存你所做的更改并退出编辑器。
+重启rsyslog服务使所做的更改生效：
+```shell
+    sudo service rsyslog restart
+```
+
+现在，所有printk打印的日志都会被记录在/var/log/kern.log这个文件中。
+这是一个基本的配置，你可能需要根据你的实际需求进行调整。例如，你可能希望只记录特定级别的消息，或者根据消息的内容将其分别记录到不同的文件。rsyslog提供了非常丰富的过滤选项，在它的文档中可以找到更多的细节。
+阅读配置文件时，你可能会注意到其中有很多带有"$"符号的行。这些都是rsyslog的全局配置选项，用于控制rsyslog的行为。尽管默认的设置应该适合大多数用途，你如果需要，可以根据rsyslog文档中的指示更改它们。
+
+## 3.在rsyslog中设置只记录特定级别的printk消息
+
+要设置 rsyslog 只记录特定级别的 printk 消息，你可以在 rsyslog 配置文件中指定日志级别。printk 的日志级别有以下几种：EMERG, ALERT, CRIT, ERR, WARNING, NOTICE, INFO, DEBUG。大于等于指定级别的都会被记录。
+举一个例子，假设你只希望记录级别为 ERR 和以上的 printk 消息，那么你可以这样配置：
+打开 rsyslog 配置文件:
+```shell
+    sudo vi /etc/rsyslog.conf
+```
+
+在文件中，你可以添加一行如下的规则:
+```shell
+    kern.err /var/log/kern.log
+```
+
+这个规则表示，所有级别为 ERR 或者更高的内核日志都将被记录在 /var/log/kern.log 文件中。
+
+保存并退出编辑器。重新启动 rsyslog 服务以使更改生效:
+```shell
+    sudo service rsyslog restart
+```
+
+这样，只有当 printk 消息的级别为 ERR 或者更严重时，它们才会被写入到 /var/log/kern.log 文件中。
+请注意，rsyslog 配置中的日志级别和 printk 中的日志级别是匹配的，比如：KERN_ERR 对应 kern.err，KERN_DEBUG 对应 kern.debug，以此类推。
+
+## 5.Linux系统日志中定义的日志级别
+用于区分日志信息的重要性。从最严重到最不重要依次是：EMERG, ALERT, CRIT, ERR, WARNING, NOTICE, INFO, DEBUG。下面来详细解释一下：
+```
+EMERG (Emergency)：系统不可用，这是最高级别的日志，表示系统在无法使用的情况下记录的错误。
+ALERT：需要立即采取行动的问题。比如，某个关键服务的失败。
+CRIT (Critical)：关键条件，如硬设备错误。
+ERR (Error)：错误条件，比如软件/服务错误。
+WARNING：警告条件，不一定会影响服务运行，但是可能需要注意。
+NOTICE：正常但有重要意义的条件，比如服务启动、服务停止等。
+INFO：信息性消息，通常帮助你了解系统的正常活动。
+DEBUG：专供调试使用，显示系统详细运行过程或报告的信息，通常在解决问题时使用。
+```
+
+## 6.只记录INFO级别的printk消息
+打开rsyslog配置文件:
+```shell
+    sudo vi /etc/rsyslog.conf
+```
+在文件中，你添加以下的规则：
+```shell
+    kern.=info /var/log/kern.log
+```
+在这个设置中，"="表示要仅匹配info级别的日志，将其重定向到/var/log/kern.log。
+
+保存并退出编辑器。重启rsyslog服务以使更改生效：
+```shell
+    sudo service rsyslog restart
+```
+现在，只有当printk消息的级别是INFO时，它们才会被写入到指定的日志文件/var/log/kern.log。请注意，“=”操作符在这里表示“只”，而不是“和它一样或者更高”。在上述的设置中，只有info级别的消息才会被记录，更高级别的消息则不会。
+
+
+# 20.tcpdump使用
+tcpdump 是一个被广泛使用的命令行网络抓包工具，它允许用户捕获并分析网络上的数据流。确保当运行 tcpdump 时，您具备所需的管理员权限，因为抓包通常需要更高级别的系统权限。
+-l 实时更新
+-i 是用来指定网络接口的选项，-w 是写入文件，-r 是读取文件，-c 是计数限制，-X 是打印数据的详细信息，-s 是指定抓取数据包的大小。
+在使用 tcpdump 之前，您还可以通过 tcpdump --help 或 man tcpdump 查看更多的选项和详细的帮助信息。以下是基本使用 tcpdump 的一些例子：
+1. 捕获所有接口的数据包:
+```bash
+   sudo tcpdump
+```
+这会在所有网络接口上捕获数据包，但请注意，这可能会产生巨量的数据。
+2. 指定网络接口捕获数据包:
+```bash
+   sudo tcpdump -i eth0
+```
+这会捕获名为 eth0 的网络接口上的所有数据包。
+3. 保存捕获的数据包到文件:
+```bash
+   sudo tcpdump -w capture_file.pcap
+   ```
+这会将捕获的数据包写入一个文件中，你可以用其他工具（如Wireshark）进行更详细的分析。
+4. 读取数据包文件:
+```bash
+   sudo tcpdump -r capture_file.pcap
+   ```
+这会读取之前保存的数据包文件。
+5. 捕获特定协议的数据包:
+```bash
+   sudo tcpdump icmp
+   sudo tcpdump tcp
+   sudo tcpdump udp
+   ```
+分别捕获 ICMP, TCP, 和 UDP 数据包。
+6. 捕获特定主机的数据包:
+```bash
+   sudo tcpdump host 1.2.3.4
+   ```
+只捕获发送到或来自 IP 地址为 1.2.3.4 的数据包。
+7. 捕获特定网络的数据包:
+```bash
+   sudo tcpdump net 192.168.1.0/24
+   ```
+只捕获 192.168.1.0/24 网络中的数据包。
+8. 捕获特定端口的数据包:
+```bash
+   sudo tcpdump port 80
+   ```
+只捕获目的或源端口号为 80 的数据包。
+9. 组合条件:
+```bash
+   sudo tcpdump 'tcp port 80 and host 1.2.3.4'
+```
+只捕获目的或源端口是 80 并且 IP 地址为1.2.3.4 的 TCP 数据包。
+10. 限制捕获的数据包数量:
+```bash
+    sudo tcpdump -c 100
+```
+这会在捕获 100 个数据包之后停止。
+11. 打印ASCII值以及Hex值:
+```bash
+    sudo tcpdump -X
+```
+这会打印数据包的头信息，并以ASCII和十六进制的形式打印数据部分。
+12. 调整捕获的数据包大小:
+```bash
+    sudo tcpdump -s 96
+```
+设置每个数据包的大小为 96 字节，只截获每个数据包的前 96 字节数据。
+
+# 21.tc使用
+tc（Traffic Control）命令是一个用于配置 Linux 系统上网络流量控制和流量整形的工具。它提供了广泛的功能，用于管理网络接口的带宽、延迟、丢包和队列等方面。
+
+以下是 tc 命令的一些主要功能和用途：
+- 带宽控制（Bandwidth Control）：tc 命令可以用于限制网络接口的带宽，以控制数据流量的传输速率。
+- 队列管理（Queue Management）：tc 命令可以配置和管理网络接口上的队列，用于处理数据包的排队和调度。
+- 流量整形（Traffic Shaping）：tc 命令可以对网络流量进行整形，以平滑流量的传输，并在网络拥塞时进行适当的调节。
+- 延迟控制（Delay Control）：tc 命令可以用于模拟延迟，以便测试和评估网络应用在不同网络条件下的性能。
+- 丢包模拟（Packet Loss Simulation）：tc 命令可以模拟网络中的数据包丢失情况，以测试应用程序在不稳定网络环境下的鲁棒性和恢复能力。
+- 优先级设置（Priority Configuration）：tc 命令可以为不同类型的流量设置优先级，以确保关键数据的传输和处理获得更高的优先级。
+- 流量过滤（Traffic Filtering）：tc 命令可以用于根据规则和过滤器匹配条件，对特定类型的流量进行过滤和处理。
+
+通过结合不同的 tc 命令选项和参数，可以实现各种网络流量控制和管理的需求。
+请注意，tc 命令的使用需要管理员权限（root 或使用 sudo），并且具体的操作和配置方式可能因系统和网络环境而异。
+## 1.查看当前的 tc 命令设置
+使用 tc qdisc show 命令。该命令用于显示当前系统上应用的队列调度器（Queueing Discipline，qdisc）配置。
+```bash
+tc qdisc show
+```
+系统将显示当前应用的队列调度器配置。这些配置包括网络接口（如 eth0）和相应的队列调度器类型（如 pfifo_fast、htb、fq_codel 等）。
+
+查看特定网络接口的 tc 配置，可以在命令中指定该接口的名称
+ ```bash
+tc qdisc show dev eth0
+```
+这将显示与 eth0 接口关联的队列调度器配置。
