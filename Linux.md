@@ -4170,6 +4170,32 @@ export PATH="/home/sinet/anaconda3/bin:$PATH"
 
 解决方法就是在改文档最后加上python别名`alias python="/usr/bin/python"`，让它一直指向系统python
 
+#####  Anaconda安装Pytorch报错
+报错内容如下：
+```
+SSLError(MaxRetryError('HTTPSConnectionPool(host=\'repo.anaconda.com\', port=443): Max retries exceeded with url: /pkgs/r/linux-64/repodata.json.bz2 (Caused by SSLError(SSLError("bad handshake: Error([(\'SSL routines\', \'ssl3_get_server_certificate\', \'certificate verify failed\')])")))'))
+```
+解决方案，添加清华源
+参考网址：https://blog.csdn.net/hejp_123/article/details/98493042
+
+```bash
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/  
+ 
+# 设置搜索时显示通道地址
+conda config --set show_channel_urls yes
+# 执行完上述命令后，会生成配置文件记录着我们对conda的配置，这个文件在/home/sinet文件夹下面
+```
+
+```bash
+# 编辑.condarc注释defalts，主要是注释defaults
+channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+#  - defaults
+show_channel_urls: true
+```
+
 ##### Anaconda安装Pytorch
 
 创建虚拟环境
@@ -4270,6 +4296,7 @@ iperf -s -i 1
 
 
 # 19.linux内核日志打印
+可参考网址：https://c.biancheng.net/view/1102.html
 ## 1.将内核的网络数据包处理日志单独打印到一个文件
 可以使用 Linux 的 rsyslog 功能，这是一个功能丰富的日志处理系统，能够处理内核、系统和应用程序的日志，并能将它们按照自定义的方式输出。
 按照以下步骤进行：
@@ -4281,6 +4308,21 @@ iperf -s -i 1
 ```
    sudo yum install rsyslog
 ```
+如何查看rsyslog是否被安装
+```bash
+systemctl status rsyslog
+```
+如果成功安装，会出现以下内容：
+```bash
+● rsyslog.service - System Logging Service
+   Loaded: loaded (/lib/systemd/system/rsyslog.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sun 2024-04-14 12:05:46 UTC; 10min ago
+ Main PID: 12345 (rsyslogd)
+    Tasks: 4 (limit: 1137)
+   Memory: 2.3M
+   CGroup: /system.slice/rsyslog.service
+           └─12345 /usr/sbin/rsyslogd -n
+```
 安装完rsyslog后，打开 rsyslog.conf 文件：
 ```
    sudo vi /etc/rsyslog.conf
@@ -4289,7 +4331,7 @@ iperf -s -i 1
 ```
    kern.=debug -/var/log/netpacket.log
 ```
-
+减号“-”在文件名前表示rsyslog在写入这些消息时，将不会同步输出到硬盘立即保存，这可以提高性能但可能在 crash 时导致一些日志的丢失。
 这意味着所有内核级别的 debug 信息（包括网络数据包处理）都会打印到 netpacket.log 文件中。
 最后重启 rsyslog 服务：
 

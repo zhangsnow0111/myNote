@@ -93,6 +93,94 @@ git #查看版本
 	1. github提供多种协议的url，但ssh通常更快
 	`git clone --depth 1 <url>` 只克隆工作区
 
-> [!seealso]
-> [[开发工具|开发工具]]  
-> #常用
+7. 查看远程仓库信息
+	`git remote -v`
+	i.显示远程仓库的名称和对应的 URL。输出将包括远程仓库的名称（通常是 "origin"）以及远程仓库的 URL
+
+
+# 上传github（其实是上面的融合）
+
+1. 在 GitHub 上创建一个新的仓库。
+在 GitHub 网站上登录并点击页面右上角的 "+" 图标，然后选择 "New repository" 创建一个新的仓库。给仓库起一个适当的名称，并选择其他相关配置选项，例如是否设为私有仓库、是否添加 README 文件等。
+
+2. 在本地机器上初始化一个 Git 仓库。
+打开命令行终端，并导航到包含您的代码的文件夹或项目根目录。执行以下命令来初始化 Git 仓库：
+```git init```
+
+3. 将代码添加到 Git 仓库。
+执行以下命令将所有文件添加到 Git 的暂存区：
+```git add .```
+如果只想添加特定文件，可以将 "." 替换为文件名。
+
+4. 提交代码到本地仓库。
+执行以下命令提交代码并添加一条提交消息：
+```git commit -m "Initial commit"```
+在引号中的 "Initial commit" 部分，可以根据需要自定义提交消息。
+可能需要配置邮箱和用户名
+```
+git config --global user.email "642716972@qq.com"
+git config --global user.name "zhangsnow0111"
+```
+5. 关联本地仓库与 GitHub 远程仓库。
+执行以下命令，将您在 GitHub 上创建的仓库 URL 替换为 <repository-url>，注意有的时候网络不好，我们需要选择第二个连接也就是ssh连接进行绑定和推送，使用此链接需要联合下面的密钥创建使用：
+```git remote add origin <repository-url>```
+
+6. 将代码推送到 GitHub 远程仓库。
+执行以下命令将本地仓库的代码推送到 GitHub：
+```git push -u origin master```
+这会将代码推送到名为 origin 的远程仓库的 master 分支上。
+
+添加后，远程库的名字就是origin，这是Git默认的叫法，也可以改成别的，但是origin这个名字一看就知道是远程库。
+
+## 添加ssh密钥
+1. 检查 SSH 密钥：
+首先，确保你的计算机上存在 SSH 密钥。你可以使用以下命令检查是否存在 SSH 密钥：
+```shell
+ls ~/.ssh
+```
+如果没有任何文件或目录显示，表示你没有 SSH 密钥。在这种情况下，你需要生成一个新的 SSH 密钥对。
+
+2. 生成 SSH 密钥（如果需要）：
+如果你没有 SSH 密钥，可以使用以下命令生成一个新的 SSH 密钥：
+```shell
+ssh-keygen -t rsa -b 4096 -C "你的电子邮件地址"
+ssh-keygen -t rsa -b 4096 -C "642716972@qq.com"
+```
+在命令中，将 "你的电子邮件地址" 替换为你的 GitHub 帐户关联的电子邮件地址。按照提示设置密钥保存位置和密码（一般全部enter）。这将生成一个新的 SSH 密钥对。
+
+3. 添加 SSH 密钥到 GitHub：
+将生成的 SSH 公钥添加到你的 GitHub 帐户中，以便进行身份验证。你可以使用以下命令获取 SSH 公钥的内容：
+```shell
+cat ~/.ssh/id_rsa.pub
+```
+复制输出中的内容，然后前往你的 GitHub 帐户的设置页面，找到 "SSH and GPG keys"（SSH 和 GPG 密钥）部分，并添加一个新的 SSH 密钥。将复制的 SSH 公钥粘贴到 "Key"（密钥）字段中，然后保存。
+4.验证 SSH 连接：
+确保你的计算机可以成功与 GitHub 建立 SSH 连接。你可以使用以下命令进行验证：
+```shell
+ssh -T git@github.com
+```
+如果一切正常，你将看到一条欢迎消息，表示 SSH 连接成功。
+现在，你应该能够使用 SSH 协议访问 GitHub 上的仓库。请确保你有正确的访问权限，并且仓库确实存在。
+
+> **-t rsa -b 4096 是什么意思**
+在生成 SSH 密钥时，-t rsa -b 4096 是用于指定密钥类型和密钥长度的选项。
+-t rsa 表示要生成 RSA 密钥。RSA 是一种非对称加密算法，用于生成公钥和私钥对。
+-b 4096 表示要生成的密钥长度为 4096 位。密钥长度越长，安全性越高，但生成和使用密钥的过程也会更耗时。
+综合起来，-t rsa -b 4096 意味着你正在生成一个使用 RSA 算法，长度为 4096 位的 SSH 密钥对。这样的密钥对通常提供较高的安全性，尤其适用于安全敏感的环境和需要更高级别身份验证的情况。
+
+## 可能出现的问题
+```
+git push
+error: update_ref failed for ref 'refs/remotes/origin/main': cannot lock ref 'refs/remotes/origin/main': Unable to create '/home/sinet/P4/tutorials/exercises/congAvoid2-8h8s/.git/refs/remotes/origin/main.lock': Permission denied
+Everything up-to-date
+```
+这个错误表示在执行 git push 命令时，出现了更新引用的错误。具体错误信息是无法锁定引用 refs/remotes/origin/main，因为无法创建 .git/refs/remotes/origin/main.lock 文件，权限被拒绝。
+
+这通常是由于权限设置问题导致的。请确保你对该仓库的本地副本具有读写权限。你可以尝试以下解决方法：
+
+检查文件和文件夹权限：确保你的用户帐户对 .git 文件夹及其子文件夹具有适当的权限。你可以使用 ls -la 命令检查文件和文件夹的权限，并使用 chmod 命令更改权限。
+```
+ls -la /home/sinet/P4/tutorials/exercises/congAvoid2-8h8s/.git
+chmod -R 777 /home/sinet/P4/tutorials/exercises/congAvoid2-8h8s/.git
+```
+
